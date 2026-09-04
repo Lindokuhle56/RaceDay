@@ -1,0 +1,34 @@
+name: RaceDay CI/CD - Part 1 Validation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-part1:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository code
+      uses: actions/checkout@v4
+
+    - name: Verify Part 1 required files exist
+      run: |
+        echo "Checking /docs folder..."
+        if [ ! -d "docs" ]; then echo "❌ docs folder MISSING"; exit 1; fi
+        if [ ! -f "docs/raceeday-db.sql" ]; then echo "❌ SQL script MISSING"; exit 1; fi
+        if [ ! -f "docs/api-endpoints.md" ]; then echo "❌ API plan MISSING"; exit 1; fi
+        if [ ! -f "docs/erd.png" ]; then echo "❌ ERD diagram MISSING"; exit 1; fi
+        if [ ! -f "README.md" ]; then echo "❌ README.md MISSING"; exit 1; fi
+        echo "✅ All Part 1 files found!"
+
+    - name: Count commits for Part 1
+      run: |
+        COMMIT_COUNT=$(git rev-list --count HEAD)
+        echo "Total commits: $COMMIT_COUNT"
+        if [ "$COMMIT_COUNT" -lt 20 ]; then
+          echo "⚠️ You need at least 20 meaningful commits!"
+        else
+          echo "✅ Commit requirement met!"
+        fi
